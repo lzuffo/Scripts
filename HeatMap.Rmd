@@ -73,7 +73,15 @@ ggheatmap <- ggplot(melted_cormat,aes(Var2,Var1, fill = value))+ # Montar heatma
 # Add values in the HeatMap
 ```{r}
 name <- as.data.frame(read.table("names.txt", header = T))
+head(name)
 ```
+  num    value
+1     0.10
+2   0.21**
+3     0.10
+4 -0.44***
+5  0.43***
+6   0.20**
 
 #
 ```{r}
