@@ -1,28 +1,25 @@
----
-title: "HeatMap"
-output: html_document
----
+# HeatMap Correlations
 
-# Packages
+## Packages
 ```{r}
 library(ggplot2)
 library(reshape2)
 library(Hmisc)
 ```
 
-# Directory
+## Directory
 ```{r}
 setwd("C:\\Users\\")
 ```
 
-# Read data
+## Read data
 ```{r}
 a <- as.matrix(read.table("corA.txt", header = T)) # Ler dados Alto
 b <- as.matrix(read.table("corB.txt", header = T)) # Ler dados Baixo
 ```
 
 
-# Calculate correlation
+## Calculate correlation
 ```{r}
 corA <- rcorr(a, type = "pearson") # Correlacao alto
 corA
@@ -57,7 +54,7 @@ head(melted_cormat)
 5  SNS SNCS  0.43
 6  SNM SNCS  0.20
 
-# Create HeatMap
+## Create HeatMap
 ```{r}
 ggheatmap <- ggplot(melted_cormat,aes(Var2,Var1, fill = value))+ # Montar heatmap
 	geom_tile(color = "white")+ 
@@ -70,7 +67,7 @@ ggheatmap <- ggplot(melted_cormat,aes(Var2,Var1, fill = value))+ # Montar heatma
 	coord_fixed()
 ```
 
-# Add values in the HeatMap
+## Add values in the HeatMap
 ```{r}
 name <- as.data.frame(read.table("names.txt", header = T))
 head(name)
@@ -83,7 +80,7 @@ head(name)
 5  0.43***
 6   0.20**
 
-#
+## HeatMap features
 ```{r}
 ggheatmap +
 geom_text(aes(Var2, Var1, label = name$value), color = "black", size = 2.7)+ # configurar texto
@@ -100,7 +97,7 @@ theme(
  # scale_y_discrete(name="")
 ```
 
-# Save
+## Save
 ```{r}
 ggsave("test.png", dpi = 600, width = 30, length = 30, units = "cm") # salvar grafico
 ```
