@@ -1,0 +1,228 @@
+# Mixed Model Analysis
+
+## Packages
+```{r}
+library(fBasics)
+library(agricolae)
+library(lme4)
+library(lmerTest)
+```
+
+## Set directory
+```{r}
+setwd("C:\\Users\\")
+```
+
+## Data
+```{r}
+PMHIB<-read.table("alto.txt", header = T)
+head(PMHIB)
+str(PMHIB) # Nome das colunas
+```
+gen block rep year NF NC NG NBF NBC NT EUtN NPS ICN NRem ERN AF AP AE CE DC SPAD CES NFI PF MHE M1000 PG NPQ
+
+## Trais are numeric
+```{r}
+is.numeric(PMHIB$NF)
+is.numeric(PMHIB$NC)
+is.numeric(PMHIB$NG)
+is.numeric(PMHIB$NBF)
+is.numeric(PMHIB$NBC)
+is.numeric(PMHIB$NT)
+is.numeric(PMHIB$EUtN)
+is.numeric(PMHIB$NPS)
+is.numeric(PMHIB$ICN)
+is.numeric(PMHIB$NRem)
+is.numeric(PMHIB$AF)
+is.numeric(PMHIB$AP)
+is.numeric(PMHIB$AE)
+is.numeric(PMHIB$CE)
+is.numeric(PMHIB$DC)
+is.numeric(PMHIB$SPAD)
+is.numeric(PMHIB$CES)
+is.numeric(PMHIB$NFI)
+is.numeric(PMHIB$PF)
+is.numeric(PMHIB$MHE)
+is.numeric(PMHIB$M1000)
+is.numeric(PMHIB$PG)
+is.numeric(PMHIB$NPQ)
+```
+
+## Prepare matrix
+```{r}
+maize <- matrix(NA, 621, 2)
+maize <- PMHIB[,c(5:29)] #a partir da coluna 5 começam caracteres
+maize <- as.matrix(maize)
+Results <- matrix(NA, 25, 14) #Matriz para salvar os dados - 25 caracteres e 14 valores
+```
+
+## Loop
+```{r}
+for(i in 1:25){
+PMHIB <- read.table("alto.txt", header = T)
+PMHIB$gen <- as.factor(PMHIB$gen)
+PMHIB$block <- as.factor(PMHIB$block)
+PMHIB$rep <- as.factor(PMHIB$rep)
+PMHIB$year <- as.factor(PMHIB$year)
+
+#Aplicando o modelo. Aleatório: (1|x), Fix: x. 
+PMHIB.2 <- lmer(maize[,i] ~ (1|gen) + year + (1|gen:year) + rep%in%year + (1|block%in%rep), REML = TRUE, data = PMHIB)
+a <- summary(PMHIB.2) # Sumario
+b <- anova(PMHIB.2)   # anova com efeitos fixos
+c <- ranova(PMHIB.2)  # anova com efeitos aleatorios
+
+#Escolhendo os valores a serem salvos
+FIXED <- a$coefficients
+fixed <- FIXED[1,1] # media
+Random <- as.data.frame(VarCorr(PMHIB.2)) # variancias
+Qui <- as.data.frame(c$Pr) # significancia efeitos aleatorios
+FVal <- as.data.frame(b$Pr) # significancia efeitos fixos
+
+#Montando a tabela com os valores
+Results[i,] <- c(fixed, Random[2,4], Random[2,5], Random[1,4], Random[1,5], Random[3,4],
+Random[3,5], Random[4,4], Random[4,5], Qui[2,1], Qui[3,1], Qui[4,1], FVal[1,1], FVal[2,1])
+
+}
+```
+
+## Column names
+```{r}
+names <- c("Mean", "Var_Gen", "sd_Gen", "Var_Gen:Year", "sd_Gen:Year", "Var_Block", "sd_Block",
+	"Var_Res", "sd_Res", "Qui_Gen", "Qui_Gen:Year", "Qui_Block", "FVal_Year", "FVal_Year:Rep")
+colnames(Results) <- names
+```
+
+## Row names
+```{r}
+character <- c("NF", "NC", "NG", "NBF", "NBC", "NBG", "NT", "EUtN", "NPS", "ICN", "NRem", "ERN", "AF",
+"AP", "AE", "CE", "DC", "SPAD", "CES", "NFI", "PF", "MHE", "M1000", "PG", "NPQ")
+rownames(Results) <- character
+```
+
+## Save
+```{r}
+write.table(Results, "Results_complete.txt")
+```
+
+# BLUP
+
+## Clear outputs
+```{r}
+rm(list = ls(all = TRUE))
+```
+
+## Data
+```{r}
+PMHIB <- read.table("alto.txt", header = T)
+```
+
+## Prepare matrix
+```{r}
+maize <- matrix(NA, 621, 2)
+maize <- PMHIB[,c(5:29)]
+maize <- as.matrix(maize)
+BLUP <- matrix(NA, 114, 25) # 114 gen e 25 caracteres
+```
+
+## Loop
+```{r}
+for(i in 1:25){
+PMHIB <- read.table("alto.txt", header = T)
+PMHIB$gen <- as.factor(PMHIB$gen)
+PMHIB$block <- as.factor(PMHIB$block)
+PMHIB$rep <- as.factor(PMHIB$rep)
+PMHIB$year <- as.factor(PMHIB$year)
+
+# Aplicando Modelo
+PMHIB <- lmer(maize[,i] ~ (1|gen) + year + (1|gen:year) + rep%in%year + (1|block%in%rep), REML = TRUE, data = PMHIB)
+PMHIB.blup <- ranef(PMHIB)
+
+#Escolhendo valores a serem salvos
+a <- PMHIB.blup$gen
+aa <- as.matrix(a)
+
+#Montando a tabela com valores
+BLUP[,i] <- aa
+
+}
+```
+
+## Column names
+```{r}
+character <- c("NF", "NC", "NG", "NBF", "NBC", "NBG", "NT", "EUtN", "NPS", "ICN", "NRem", "ERN", "AF", "AP",
+"AE", "CE", "DC", "SPAD", "CES", "NFI", "PF", "MHE", "M1000", "PG", "NPQ")
+colnames(BLUP) <- character
+```
+
+## Row names
+```{r}
+b <- rownames(PMHIB.blup$gen)
+rownames(BLUP) <- b
+```
+
+## Save
+```{r}
+write.table(BLUP, "Blup.txt")
+```
+
+
+# Shapiro Test
+
+## Clear outputs
+```{r}
+rm(list = ls(all = TRUE))
+```
+
+## Data
+```{r}
+PMHIB <- read.table("alto.txt", header = T)
+```
+
+## Prepare matrix
+```{r}
+maize <- matrix(NA, 621, 2)
+maize <- PMHIB[,c(5:29)]
+Shapiro <- matrix(NA, 1, 25) # Tabela para teste shapiro - 24 caracteres e 1 valor
+```
+
+## Loop
+```{r}
+for(i in 1:25){
+PMHIB <- read.table("alto.txt", header = T)
+PMHIB$gen <- as.factor(PMHIB$gen)
+PMHIB$block <- as.factor(PMHIB$block)
+PMHIB$rep <- as.factor(PMHIB$rep)
+PMHIB$year <- as.factor(PMHIB$year)
+
+#Aplicando o modelo Completo
+PMHIB <- lmer(maize[,i] ~ (1|gen) + year + (1|gen:year) + rep%in%year + (1|block%in%rep), REML = TRUE, data = PMHIB)
+PMHIB.res <- as.matrix(residuals(PMHIB))
+a <- shapiro.test(PMHIB.res)
+
+#Escolhendo valores a serem salvos
+aa <- a$p.value
+
+#Montar tabela Shapiro
+Shapiro[,i] <- aa
+
+#Montar e salvar tabela Residuos
+b <- PMHIB.res
+y = i
+write.table(b, file = paste(y, ".res.txt", sep = ""))
+
+}
+
+```
+
+## Column names
+```{r}
+character <- c("NF", "NC", "NG", "NBF", "NBC", "NBG", "NT", "EUtN", "NPS", "ICN", "NRem", "ERN", "AF", "AP",
+"AE", "CE", "DC", "SPAD", "CES", "NFI", "PF", "MHE", "M1000", "PG", "NPQ")
+colnames(Shapiro) <- character
+```
+
+
+## Save
+```{r}
+write.table(Shapiro, "Shapiro.txt")
+```
