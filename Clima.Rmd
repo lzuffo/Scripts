@@ -1,0 +1,69 @@
+---
+title: "Clima"
+output: html_document
+---
+
+# Packages
+```{r}
+library(latticeExtra)
+```
+
+# Set directory
+```{r}
+setwd("C:\\Users\\")
+```
+
+# Read data
+```{r}
+dados <- read.table("climas.txt", header = T) # Ler tabela
+max <- dados$max
+min <- dados$min
+prec <- dados$chuva
+y_range <- range(0, max, min) # determinar eixo Y
+x_range <- range(0:212) # determinar eixo X
+```
+
+# Plot type
+```{r}
+png("arr.png", res=600, width=40, height=20, units="cm")
+```
+
+# Plot temperature graph
+```{r}
+g1 <- xyplot(min + max ~ day| year , data = dados, type = "l", xlim = x_range, ylim = y_range, 
+           lty = 1, lwd = 0.6, ylab = list(label = "Temperature (C°)", cex = 1.3), ylab.right = list(label = "Rainfall (mm)", cex = 1.3),
+           xlab = list(label = "Month", cex = 1.3), layout = c(1,2), index.cond = list(c(2,1)),
+           scales = list(x = list(at = 30*0.5:212, label = c("Oct","Nov","Dec","Jan","Feb","Mar","Apr"), cex = 1.3)),
+           strip = strip.custom(bg = "gray90", strip.names = TRUE, var.name = "Growing Season"))
+
+```
+
+# Plot arrows
+```{r}
+g2 <- g1 + layer(panel.arrows(112,15,112,20, col = "red", code = 1, lwd = 2),
+                panel.arrows(172,15,172,20, col = "blue", code = 1, lwd = 2),
+                panel.arrows(40,15,40,20, col = "black", code = 1, lwd = 2))
+```
+
+# Plot rainfall graph
+```{r}
+g3<-xyplot(prec ~ day| year , data = dados, type ="h",col="black",lwd=2)
+```
+
+# Join graphs
+```{r}
+graph <- doubleYScale(g2, g3, style1 = 0, style2 = 0,
+                    text = c("Minimun Temperature", "Maximun Temperature", "Rainfall"), columns = 3)
+```
+
+# Graph colors
+```{r}
+update(trellis.last.object(),
+       par.settings = simpleTheme(col = c("blue", "red", "black")))
+```
+
+# Save graph
+```{r}
+dev.off()
+```
+
