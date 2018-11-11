@@ -15,7 +15,7 @@ library(ggpubr)
 
 # Set directory
 ```{r}
-setwd("C:\\Users\\Zuffo\\Desktop\\Leandro\\Artigo\\Analises\\chuva")
+setwd("C:\\Users\\")
 ```
 
 # Read Data

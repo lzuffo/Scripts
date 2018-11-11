@@ -1,6 +1,8 @@
 ---
 title: "Clima"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 # Packages
@@ -14,8 +16,37 @@ setwd("C:\\Users\\")
 ```
 
 # Read data
+## Coluna day é continuo entre os meses do mesmo ano.
 ```{r}
 dados <- read.table("climas.txt", header = T) # Ler tabela
+```
+
+# First lines
+```{r}
+head(dados)
+```
+       year month day      max      min chuva
+2015/2016   Oct   1 24.50000 22.58750   2.6
+2015/2016   Oct   2 24.10417 22.76250   0.0
+2015/2016   Oct   3 25.31250 23.41250   0.0
+2015/2016   Oct   4 24.96250 23.25000   0.0
+2015/2016   Oct   5 21.91250 20.91250   0.0
+2015/2016   Oct   6 20.29583 18.99583   0.0
+
+# Last lines
+```{r}
+tail(dados)
+```
+    year month day      max      min chuva
+2016/2017   Apr 207 21.13750 19.91667   0.0
+2016/2017   Apr 208 20.64167 19.72500   0.0
+2016/2017   Apr 209 23.03750 21.56667   4.2
+2016/2017   Apr 210 19.30833 18.92083   6.2
+2016/2017   Apr 211 17.80833 17.37917   0.0
+2016/2017   Apr 212 18.09583 17.38333   0.2
+
+# Prepare Data
+```{r}
 max <- dados$max
 min <- dados$min
 prec <- dados$chuva
