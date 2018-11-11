@@ -1,0 +1,155 @@
+---
+title: "Plots"
+output: html_document
+---
+
+# Packages
+```{r}
+library(ggplot2)
+library(ggrepel)
+library(grid)
+library(cowplot)
+library(gridExtra)
+library(ggpubr)
+```
+
+# Set directory
+```{r}
+setwd("C:\\Users\\")
+```
+
+# Read Data
+```{r}
+graf <- read.table("graf.txt", header = TRUE) 
+```
+
+# Set traits
+```{r}
+PG1<-graf$PG1
+PG2<-graf$PG2
+EUTN1<-graf$EUtN1
+EUTN2<-graf$EUtN2
+NT1<-graf$NT1
+NT2<-graf$NT2
+NHI1<-graf$NHI1
+NHI2<-graf$NH2
+RemE2<-graf$RemE2
+RemN2<-graf$RemN2
+```
+
+# Graph GY x GY
+```{r}
+g1 <- ggplot(graf,
+	aes(PG1, PG2, label = as.character(HYB))) + # Dados do grafico e nomes dos pontos
+	geom_text(size = 2.5) +  # indicar tamanho do texto 
+	#geom_text_repel(aes(label = rownames(graf)),size = 2.5)  # adicionar nome dos hibridos sem sobrepor
+      geom_vline(xintercept = 0, linetype = 3) + geom_hline(yintercept = 0, linetype = 3) +  # adicionar eixos x e y e tipo da linha
+	labs(x = expression(paste("Grain yield under low N (Kg ",ha^-1,")")), y = expression(paste("Grain yield under high N (Kg  ",ha^-1,")"))) + # adicionar nomes dos eixos
+	annotate("text", x = -836, y = 2030, label = c("Inefficient and responsive"),vjust = "inward", hjust = "inward", size=3) +  # adicionar textos dentro do gráfico
+	annotate("text", x = 1142, y = 2030, label = c("Efficient and responsive"),vjust = "inward", hjust = "inward", size=3) +
+	annotate("text", x = -836, y = -2310, label = c("Inefficient and non-responsive"),vjust = "inward", hjust = "inward",size=3) +
+	annotate("text", x = 1142, y = -2310, label = c("Efficient and non-responsive"),vjust = "inward", hjust = "inward",size=3) +
+	theme(panel.background=element_rect(fill = "white", colour = "black"), # mudar para tema preto e branco
+	axis.title.x = element_text(size = 14),axis.title.y = element_text(size = 14), # determinar tamanho das fontes dos eixos
+	axis.text.x = element_text(size = 12), axis.text.y = element_text(size = 12)) # determinar tamanho das fontes dos nomes dos eixos
+
+```
+
+# Save graph
+```{r}
+ggsave("GYxGY1.png", dpi = 600, width = 30, height = 30, units = "cm")
+```
+
+# Graph NHI x NHI
+```{r}
+g2 <- ggplot(graf,
+	aes(NHI1, NHI2, label = as.character(HYB))) +
+	geom_text(size = 2.5) + 
+	geom_vline(xintercept = 0, linetype = 3) + geom_hline(yintercept = 0, linetype = 3) +  
+	labs(x = ("NHI under low N"), y = ("NHI under high N")) + 
+	theme(panel.background = element_rect(fill = "white", colour = "black"),
+	axis.title.x = element_text(size=12), axis.title.y = element_text(size = 12),
+	axis.text.x = element_text(size=10), axis.text.y = element_text(size = 10))
+```
+
+# Graph NUtE x NUtE
+```{r}
+g3 <- ggplot(graf,
+	aes(EUTN1, EUTN2, label = as.character(HYB))) +
+	geom_text(size = 2.5) + # adicionar nome dos hibridos e pontos sobrepostos
+	geom_vline(xintercept = 0, linetype = 3) + geom_hline(yintercept = 0, linetype = 3) +  
+	labs(x = expression(paste("NUtE under low N (Kg ",Kg^-1,")")), y = expression(paste("NUtE under high N (Kg  ",Kg^-1,")"))) + 
+	theme(panel.background = element_rect(fill = "white", colour = "black"),
+	axis.title.x = element_text(size = 12), axis.title.y = element_text(size = 12),
+	axis.text.x = element_text(size = 10), axis.text.y = element_text(size = 10))
+```
+
+# Graph GY x NUtE LN
+```{r}
+g4 <- ggplot(graf,
+	aes(PG1, EUTN1, label = as.character(HYB))) + 
+	geom_text(size = 2.5)  + 
+	geom_vline(xintercept = 0, linetype = 3) + geom_hline(yintercept = 0, linetype = 3) +  
+	labs(x = expression(paste("Grain yield under low N (Kg ",ha^-1,")")), y = expression(paste("NUtE under low N (Kg  ",Kg^-1,")"))) + 
+	theme(panel.background = element_rect(fill = "white", colour = "black"),
+	axis.title.x = element_text(size = 12), axis.title.y = element_text(size = 12),
+	axis.text.x = element_text(size = 10), axis.text.y = element_text(size = 10))
+```
+
+# Graph GY x NUtE HN
+```{r}
+g5 <- ggplot(graf,
+	aes(EUTN2, PG2, label = as.character(HYB))) +
+	geom_text(size = 2.5) + # adicionar nome dos hibridos e pontos sobrepostos
+	geom_vline(xintercept = 0, linetype = 3) + geom_hline(yintercept = 0, linetype = 3) +  
+	labs(y = expression(paste("Grain yield under high N (Kg ",ha^-1,")")), x = expression(paste("NUtE under high N (Kg  ",Kg^-1,")"))) + 
+	theme(panel.background = element_rect(fill = "white", colour = "black"),
+	axis.title.x = element_text(size = 12), axis.title.y = element_text(size = 12),
+	axis.text.x = element_text(size = 10), axis.text.y = element_text(size = 10))
+```
+
+# Graph NUtE x NRem HN
+```{r}
+g6 <- ggplot(graf,
+	aes(EUTN2, RemN2, label = as.character(HYB))) +
+	geom_text(size = 2.5) + 
+	geom_vline(xintercept = 0, linetype = 3) + geom_hline(yintercept = 0, linetype = 3) +  
+	labs(y = expression(paste("NRem under high N (Kg ",ha^-1,")")), x = expression(paste("NUtE under high N (Kg  ",Kg^-1,")"))) + 
+	theme(panel.background = element_rect(fill="white", colour="black"),
+	axis.title.x = element_text(size=12), axis.title.y = element_text(size = 12),
+	axis.text.x = element_text(size=10), axis.text.y = element_text(size = 10))
+```
+
+# Graph NUtE x NUpT HN
+```{r}
+g7 <- ggplot(graf,
+	aes(EUTN2, NT2, label = as.character(HYB))) +
+	geom_text(size = 2.5) + 
+	geom_vline(xintercept = 0, linetype = 3) + geom_hline(yintercept = 0, linetype = 3) +  
+	labs(y = expression(paste("TNM under high N (Kg ",ha^-1,")")), x = expression(paste("NUtE under high N (Kg  ",Kg^-1,")"))) + 
+	theme(panel.background = element_rect(fill="white", colour = "black"),
+	axis.title.x = element_text(size = 12), axis.title.y = element_text(size = 12),
+	axis.text.x = element_text(size = 10), axis.text.y = element_text(size = 10))
+```
+
+# Graph NUpT x NRem HN
+```{r}
+g8 <- ggplot(graf,
+	aes(NT2, RemN2, label = as.character(HYB))) +
+	geom_text(size = 2.5) + 
+	geom_vline(xintercept = 0, linetype = 3) + geom_hline(yintercept = 0, linetype = 3) +  
+	labs(x = expression(paste("TNM under high N (Kg ",ha^-1,")")), y = expression(paste("NRem under high N (Kg ",ha^-1,")"))) + 
+	theme(panel.background = element_rect(fill = "white", colour = "black"),
+	axis.title.x = element_text(size = 12), axis.title.y = element_text(size = 12),
+	axis.text.x = element_text(size = 10), axis.text.y = element_text(size = 10))
+```
+
+# Plot several graphs
+```{r}
+figure <- plot_grid(g5, g6, g7, labels = "AUTO", ncol = 1, nrow = 3) # Alinhados em 1 coluna e 3 linhas
+```
+
+# Save
+```{r}
+ggsave("figur2.png", dpi = 600, width = 15, height = 30, units = "cm") 
+```
