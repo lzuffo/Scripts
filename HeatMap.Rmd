@@ -1,0 +1,82 @@
+---
+title: "HeatMap"
+output: html_document
+---
+
+# Packages
+```{r}
+library(ggplot2)
+library(reshape2)
+library(Hmisc)
+```
+
+# Directory
+```{r}
+setwd("C:\\Users\\Zuffo\\Desktop\\Leandro\\Artigo\\Analises\\Correlaçao")
+```
+
+# Read data
+```{r}
+a <- as.matrix(read.table("corA.txt", header = T)) # Ler dados Alto
+b <- as.matrix(read.table("corB.txt", header = T)) # Ler dados Baixo
+```
+
+
+# Calculate correlation
+```{r}
+corA <- rcorr(a, type = "pearson") # Correlacao alto
+corA
+corB <- rcorr(b, type = "pearson") # Correlacao baixo
+corB
+```
+
+# Create table
+## "cormats" é a tabela com as correlações. No caso de plotar um ambiente acima e outro abaixo da diagonal, deve montar a tabela com respectivos valores dos ambientes, um acima e outro abaixo da diagonal, e se desejavel a correlaçao entre ambientes na diagonal.
+```{r}
+cormat <- as.matrix(read.table("cormats.txt", header = T)) 
+head(cormat)
+
+melted_cormat <- melt(cormat)
+head(melted_cormat)
+```
+
+# Create HeatMap
+```{r}
+ggheatmap <- ggplot(melted_cormat,aes(Var2,Var1, fill = value))+ # Montar heatmap
+	geom_tile(color = "white")+ 
+	scale_fill_gradient2(low = "grey30", high = "grey30", mid = "white", # Cores do heatmap escala de cinza
+	#scale_fill_gradient2(low = "red", high = "red", mid = "white", # Cores do heatmap escala em vermelho
+	midpoint = 0, limit = c(-1,1), space = "Lab",
+	name = "")+
+	theme_minimal()+
+	theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))+ # texto do eixo x em 45 graus
+	coord_fixed()
+```
+
+# Add values in the HeatMap
+```{r}
+name <- as.data.frame(read.table("names.txt", header = T))
+```
+
+#
+```{r}
+ggheatmap +
+geom_text(aes(Var2, Var1, label = name$value), color = "black", size = 2.7)+ # configurar texto
+theme(
+	axis.title.x = element_blank(),
+	axis.title.y = element_blank(),
+	panel.grid.major = element_blank(),
+	panel.border = element_blank(),
+	panel.background = element_blank(),
+	axis.ticks = element_blank())
+	#ggtitle("Correlation Plot") +  # titulo do  grafico
+ # theme(legend.title = element_text(face = "bold", size = 14)) + 
+ # scale_x_discrete(name="") +
+ # scale_y_discrete(name="")
+```
+
+# Save
+```{r}
+ggsave("test.png", dpi = 600, width = 30, length = 30, units = "cm") # salvar grafico
+```
+
